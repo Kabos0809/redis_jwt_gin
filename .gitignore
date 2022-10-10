@@ -1,0 +1,4 @@
+
+.env
+SecureRandom.go
+docker/redis/data/

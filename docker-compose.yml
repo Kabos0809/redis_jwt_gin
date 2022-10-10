@@ -1,0 +1,55 @@
+version: '3.9'
+
+services:
+  go:
+    container_name: go_api
+    build: 
+      context: .
+      dockerfile: docker/go/Dockerfile
+    volumes:
+      - type: bind
+        source: ./
+        target: /go/app
+    env_file:
+      - ./.env
+    ports:
+      - 8080:8080
+    depends_on:
+      - database
+      - redis
+    networks:
+      - redis_jwt_gin_network
+
+  db:
+    container_name: database
+    image: postgres:13
+    restart: always
+    env_file:
+      - ./.env
+    ports:
+      - 5433:5432
+    tty: true
+    networks:
+      - redis_jwt_gin_network
+
+  redis:
+    container_name: redis
+    build:
+      context: .
+      dockerfile: docker/redis/Dockerfile
+    depends_on:
+      - database
+    ports:
+      - 6380:6379
+    volumes:
+      - ./docker/redis/data:/data
+    networks:
+      - redis_jwt_gin_network
+    
+networks:
+  redis_jwt_gin_network:
+    external: true
+
+volumes:
+  redis_jwt_gin_volume:
+    name: redis_jwt_gin_volume
